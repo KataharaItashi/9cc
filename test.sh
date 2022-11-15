@@ -16,12 +16,9 @@ assert(){
 	fi
 }
 
-assert 0 0
-assert 42 42
-assert 21 "5+20-4"
-assert 41 " 12 + 34 - 5 "
-assert 1 "23-9 < 10*2"
-assert 1 " 34<= 34"
-assert 0 " 3*2 != 6"
+assert 13 " a=3; b=5*4+3; (a+b)/2;"
+assert 0 "0;"
+assert 93 " x=3; y=x*x*10+x;"
+assert 23 " x=4; y=x*x+3*x-5; "
 
 echo OK

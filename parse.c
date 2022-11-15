@@ -57,6 +57,14 @@ int expect_number() {
   return val;
 }
 
+Token *consume_ident(){
+  if (token->kind != TK_IDENT)
+    return NULL;
+  Token *tok = token;
+  token = token->next;
+  return tok;
+}
+
 bool at_eof() {
   return token->kind == TK_EOF;
 }
@@ -97,7 +105,7 @@ Token *tokenize() {
     }
 
     // Single-letter punctuator
-    if (strchr("+-*/()<>", *p)) {
+    if (strchr("+-*/()<>=;", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -111,6 +119,12 @@ Token *tokenize() {
       continue;
     }
 
+    // 識別子
+    if ('a' <= *p && *p <= 'z') {
+      cur = new_token(TK_IDENT, cur, p++, 1);
+      continue;
+    }
+
     error_at(p, "invalid token");
   }
 
@@ -121,6 +135,9 @@ Token *tokenize() {
 //
 // Parser
 //
+
+// コードの配列（上限100）
+Node *code[100];
 
 Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
@@ -141,12 +158,30 @@ Node *new_num(int val) {
   return node;
 }
 
-// expr = equality
-Node *expr() {
-  return equality();
+void program() {
+  int i = 0;
+  while (!at_eof())
+    code[i++] = stmt();
+  code[i] = NULL;
 }
 
-// equality = relational ("==" relational | "!=" relational)*
+Node *stmt() {
+  Node *node = expr();
+  expect(";");
+  return node;
+}
+
+Node *expr() {
+  return assign();
+}
+
+Node *assign() {
+  Node *node = equality();
+  if (consume("="))
+    node = new_binary(ND_ASSIGN, node ,assign());
+  return node;
+}
+
 Node *equality(){
   Node *node = relational();
 
@@ -160,7 +195,6 @@ Node *equality(){
   }
 }
 
-// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 Node *relational(){
   Node *node = add();
 
@@ -178,7 +212,6 @@ Node *relational(){
   }
 }
 
-// add = mul ("+" mul | "-" mul)*
 Node *add(){
   Node *node = mul();
 
@@ -192,9 +225,6 @@ Node *add(){
   }
 }
 
-
-
-// mul = primary ("*" primary | "/" primary)*
 Node *mul() {
   Node *node = primary();
 
@@ -208,11 +238,18 @@ Node *mul() {
   }
 }
 
-// primary = "(" expr ")" | num
 Node *primary() {
   if (consume("(")) {
     Node *node = expr();
     expect(")");
+    return node;
+  }
+
+  Token *tok = consume_ident();
+  if (tok) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_LVAR;
+    node->offset = (tok->str[0] - 'a' +1 ) * 8;
     return node;
   }
 

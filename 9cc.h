@@ -11,6 +11,7 @@
 
 typedef enum {
   TK_RESERVED, // Keywords or punctuators
+  TK_IDENT,    // 識別子
   TK_NUM,      // Integer literals
   TK_EOF,      // End-of-file markers
 } TokenKind;
@@ -38,6 +39,8 @@ void expect(char *op);
 
 int expect_number();
 
+Token *consume_ident();
+
 bool at_eof();
 
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
@@ -55,6 +58,8 @@ typedef enum {
   ND_SUB, // -
   ND_MUL, // *
   ND_DIV, // /
+  ND_ASSIGN,  // =
+  ND_LVAR,  // ローカル変数
   ND_EQ,  // ==
   ND_NE,  // !=
   ND_LT,  // <
@@ -68,7 +73,10 @@ struct Node {
   Node *lhs;     // Left-hand side
   Node *rhs;     // Right-hand side
   int val;       // Used if kind == ND_NUM
+  int offset;     //kindがND_LVARのときだけ使う
 };
+
+extern Node *code[100];
 
 Node *new_node(NodeKind kind);
 
@@ -76,7 +84,10 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 
 Node *new_num(int val);
 
+void program();
+Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();
@@ -88,3 +99,5 @@ Node *primary();
 //
 
 void gen(Node *node);
+
+void gen_lval(Node *node);
