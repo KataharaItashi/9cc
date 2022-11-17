@@ -35,7 +35,7 @@ void error_at(char *loc, char *fmt, ...) {
 
 // Consumes the current token if it matches `op`.
 bool consume(char *op) {
-  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len) )
+  if ((token->kind != TK_RESERVED && token->kind != TK_RETURN) || strlen(op) != token->len || memcmp(token->str, op, token->len) )
     return false;
   token = token->next;
   return true;
@@ -83,6 +83,11 @@ bool startswith(char *p, char *q){
   return memcmp(p, q, strlen(q)) == 0;
 }
 
+// 文字がアルファベットまたは数字か？
+int is_alnum(char c){
+  return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || (c == '_');
+}
+
 // Tokenize `user_input` and returns new tokens.
 Token *tokenize() {
   char *p = user_input;
@@ -116,6 +121,13 @@ Token *tokenize() {
       char *q = p;
       cur->val = strtol(p, &p, 10);
       cur->len = p - q;
+      continue;
+    }
+
+    // return文
+    if (startswith(p, "return") && !is_alnum(p[6])){
+      cur = new_token(TK_RETURN, cur, p, 6);
+      p += 6;
       continue;
     }
 
@@ -166,8 +178,18 @@ void program() {
 }
 
 Node *stmt() {
-  Node *node = expr();
-  expect(";");
+  Node *node;
+
+  if (consume("return")){
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->lhs = expr();
+  } else {
+    node = expr();
+  }
+
+  if(!consume(";"))
+    error_at(token->str, "';'ではないトークンです");
   return node;
 }
 

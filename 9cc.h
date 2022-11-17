@@ -14,6 +14,7 @@ typedef enum {
   TK_IDENT,    // Ž¯•ÊŽq
   TK_NUM,      // Integer literals
   TK_EOF,      // End-of-file markers
+  TK_RETURN,   // return
 } TokenKind;
 
 typedef struct Token Token;
@@ -47,6 +48,8 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 
 bool startswith(char *p, char *q);
 
+int is_alnum(char c);
+
 Token *tokenize();
 
 //
@@ -65,6 +68,7 @@ typedef enum {
   ND_LT,  // <
   ND_LE,  // <=
   ND_NUM, // Integer
+  ND_RETURN,  // return
 } NodeKind;
 
 typedef struct Node Node;
