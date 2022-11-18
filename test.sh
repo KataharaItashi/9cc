@@ -27,5 +27,7 @@ assert 24 " x = 24; if( x<20 ) x=4; return x;"
 assert 3 " a = 3; if(a != 3) return a+1; return a;"
 assert 3 " z=1; if(z!=2)z=z+1; if(z==2)z=z+1; return z;"
 assert 10 " y=2; if(y<=3)y=y*3; if(y>=3)y=y*(3-1)-2; return y;"
+assert 20 "for(x=17;x<20;x=x+1)x=x; return x;"
+assert 16 "a=0; y=2; for(;a<3;a=a+1)y=y*2; return y;"
 
 echo OK

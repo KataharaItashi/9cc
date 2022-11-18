@@ -16,8 +16,25 @@ void gen_lval(Node *node){
 int label_count = 1;
 
 void gen(Node *node) {
+  if(!node) return;
 
   switch (node->kind) {
+    case ND_FOR:
+    gen(node->lhs->lhs);
+    printf(".Lbegin%d:\n", label_count);
+    gen(node->lhs->rhs);
+    if (!node->lhs->rhs)
+      printf("  push 1\n");
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%d\n", label_count);
+    gen(node->rhs->rhs);
+    printf(".Lcontinue%d:\n", label_count);
+    gen(node->rhs->lhs);
+    printf("  jmp .Lbegin%d\n", label_count);
+    printf(".Lend%d:\n", label_count);
+    label_count += 1;
+    return;
     case ND_IF:
     gen(node->lhs);
     printf("  pop rax\n");

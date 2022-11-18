@@ -19,6 +19,7 @@ typedef enum {
   TK_EOF,      // End-of-file markers
   TK_RETURN,   // return
   TK_IF,       // if
+  TK_FOR,      // for
 } TokenKind;
 
 typedef struct Token Token;
@@ -76,6 +77,9 @@ typedef enum {
   ND_NUM, // Integer
   ND_RETURN,  // return
   ND_IF,   // if
+  ND_FOR,  // for
+  ND_FOR_LEFT,
+  ND_FOR_RIGHT,
 } NodeKind;
 
 typedef struct Node Node;

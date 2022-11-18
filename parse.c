@@ -146,6 +146,13 @@ Token *tokenize() {
       continue;
     }
 
+    // for•¶
+    if (startswith(p, "for") && !is_alnum(p[3])){
+      cur = new_token(TK_FOR, cur, p, 3);
+      p += 3;
+      continue;
+    }
+
     // Ž¯•ÊŽq
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++, 1);
@@ -204,6 +211,37 @@ Node *stmt() {
     node->rhs = stmt();
     return node;
   }
+
+  if(consume_kind(TK_FOR)){
+    expect("(");
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_FOR;
+
+    Node *left = calloc(1,sizeof(Node));
+    left->kind = ND_FOR_LEFT;
+    Node *right = calloc(1,sizeof(Node));
+    right->kind = ND_FOR_RIGHT;
+
+    if(!consume(";")){
+    left->lhs = stmt();
+    }
+
+    if(!consume(";")){
+    left->rhs = expr();
+    expect(";");
+    }
+
+    if(!consume(")")){
+    right->lhs = expr();
+    expect(")");
+    }
+
+    right->rhs = stmt();
+    
+    node->lhs = left;
+    node->rhs = right;
+    return node;
+  } 
 
   if (consume_kind(TK_RETURN)){
     node = calloc(1, sizeof(Node));
