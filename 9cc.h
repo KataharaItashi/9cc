@@ -18,6 +18,7 @@ typedef enum {
   TK_NUM,      // Integer literals
   TK_EOF,      // End-of-file markers
   TK_RETURN,   // return
+  TK_IF,       // if
 } TokenKind;
 
 typedef struct Token Token;
@@ -38,6 +39,8 @@ void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 
 bool consume(char *op);
+
+bool consume_kind(TokenKind kind);
 
 void expect(char *op);
 
@@ -72,6 +75,7 @@ typedef enum {
   ND_LE,  // <=
   ND_NUM, // Integer
   ND_RETURN,  // return
+  ND_IF,   // if
 } NodeKind;
 
 typedef struct Node Node;
@@ -104,6 +108,8 @@ Node *primary();
 //
 // Code generator
 //
+
+extern int label_count;
 
 void gen(Node *node);
 

@@ -35,7 +35,15 @@ void error_at(char *loc, char *fmt, ...) {
 
 // Consumes the current token if it matches `op`.
 bool consume(char *op) {
-  if ((token->kind != TK_RESERVED && token->kind != TK_RETURN) || strlen(op) != token->len || memcmp(token->str, op, token->len) )
+  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len) )
+    return false;
+  token = token->next;
+  return true;
+}
+
+// consumes the current token if it matches kind
+bool consume_kind(TokenKind kind){
+  if (token->kind != kind)
     return false;
   token = token->next;
   return true;
@@ -131,6 +139,13 @@ Token *tokenize() {
       continue;
     }
 
+    // if•¶
+    if (startswith(p, "if") && !is_alnum(p[2])){
+      cur = new_token(TK_IF, cur, p, 2);
+      p +=2;
+      continue;
+    }
+
     // Ž¯•ÊŽq
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++, 1);
@@ -180,7 +195,17 @@ void program() {
 Node *stmt() {
   Node *node;
 
-  if (consume("return")){
+  if (consume_kind(TK_IF)){
+    expect("(");
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_IF;
+    node->lhs = expr();
+    expect(")");
+    node->rhs = stmt();
+    return node;
+  }
+
+  if (consume_kind(TK_RETURN)){
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();

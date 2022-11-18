@@ -23,5 +23,9 @@ assert 23 " x=4; y=x*x+3*x-5; "
 assert 102 " x; y; x=7; y= x*x + 9*x -10; return y;"
 assert 64 " x=2; y=x*x*x*x*x*x; return y;"
 assert 75 " x=23; y=(x+2)*3; return y;"
+assert 24 " x = 24; if( x<20 ) x=4; return x;"
+assert 3 " a = 3; if(a != 3) return a+1; return a;"
+assert 3 " z=1; if(z!=2)z=z+1; if(z==2)z=z+1; return z;"
+assert 10 " y=2; if(y<=3)y=y*3; if(y>=3)y=y*(3-1)-2; return y;"
 
 echo OK
